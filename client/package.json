@@ -13,7 +13,8 @@
     "format:check": "prettier --check .",
     "typecheck": "vue-tsc -b --noEmit",
     "generate": "openapi-typescript http://localhost:13000/doc -o src/types/api.ts",
-    "generate:local": "openapi-typescript ../server/openapi.json -o src/types/api.ts"
+    "generate:local": "openapi-typescript ../server/openapi.json -o src/types/api.ts",
+    "check": "npm run lint && npm run format:check && npm run typecheck && npm run build"
   },
   "dependencies": {
     "@lucide/vue": "^1.18.0",
