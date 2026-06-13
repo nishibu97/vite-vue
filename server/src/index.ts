@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { swaggerUI } from "@hono/swagger-ui";
 import userController from "./interface/user.controller";
 import authController from "./interface/auth.controller";
+import todoController from "./interface/todo.controller";
 
 const app = new OpenAPIHono();
 
@@ -44,6 +45,7 @@ app.get("/health", (c) => {
 // APIルート
 app.route("/auth", authController);
 app.route("/users", userController);
+app.route("/todos", todoController);
 
 const port = process.env.PORT || 3000;
 
