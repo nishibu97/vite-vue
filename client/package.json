@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate": "openapi-typescript http://localhost:13000/doc -o src/types/api.ts",
+    "generate:local": "openapi-typescript ../server/openapi.json -o src/types/api.ts"
   },
   "dependencies": {
     "@lucide/vue": "^1.18.0",
