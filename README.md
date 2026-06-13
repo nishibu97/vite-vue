@@ -1,135 +1,156 @@
 # プロジェクト概要
 
-## 📁 ディレクトリ構成
+Vue.js 3 SPA の学習用リポジトリ。フロントエンド（`client/`）とバックエンド（`server/`）のモノレポ構成。
+
+## ディレクトリ構成
 
 ```text
 .
-├── README.md           # プロジェクトのルートドキュメント
-├── client/             # フロントエンド (Vue.js SPA)
-└── server/             # バックエンド (Hono API Server)
-
+├── README.md
+├── client/                 # フロントエンド (Vue.js SPA)
+│   └── src/
+│       ├── router/         # Vue Router
+│       └── views/          # 画面コンポーネント (Home, Todo など)
+└── server/                 # バックエンド (Hono API Server)
+    ├── src/
+    ├── Dockerfile
+    └── docker-compose.yml
 ```
 
 ---
 
-## 💻 技術スタック
+## 技術スタック
 
 ### フロントエンド (`client/`)
 
-* **フレームワーク:** Vue.js 3 (Composition API / `<script setup>`)
-* **ビルドツール:** Vite
-* **開発言語:** TypeScript
-* **ルーティング:** Vue Router
-* **状態管理:** Pinia
-* **API通信:** Fetch API
-* **テストフレームワーク:** Vitest
-* **静的解析・コード整形:** ESLint + Prettier
+| 項目 | 採用技術 |
+|------|----------|
+| フレームワーク | Vue.js 3 (Composition API / `<script setup>`) |
+| ビルドツール | Vite |
+| 開発言語 | TypeScript |
+| ルーティング | Vue Router |
+| スタイリング | Tailwind CSS v4 |
+| UI | shadcn-vue |
+| API 通信 | Fetch API |
 
 ### バックエンド (`server/`)
 
-* **フレームワーク:** Hono
-* **開発言語:** TypeScript
-* **API仕様書・バリデーション:** `@hono/zod-openapi` + Swagger UI
-* **実行環境:** Node.js (またはBun等)
+| 項目 | 採用技術 |
+|------|----------|
+| フレームワーク | Hono |
+| 開発言語 | TypeScript |
+| API 仕様書・バリデーション | `@hono/zod-openapi` + Swagger UI |
+| 実行環境 | Bun |
+| コンテナ | Docker (`oven/bun:1-debian`) |
 
 ---
 
-## 🚀 起動手順
+## 起動手順
 
-### 1. フロントエンド (`client/`)
+初期セットアップ済み。開発者は以下だけ実行すればよい。
 
-Viteの公式スキャフォールディングツールを利用してプロジェクトのベースを生成し、依存関係をインストールして起動します。
-
-```bash
-# 1. clientディレクトリへ移動
-cd client
-
-# 2. プロジェクトの作成（現在のディレクトリに展開）
-# ※プロンプトでTS, Vue Router, Pinia, Vitest, ESLint, Prettierを「Yes」に設定
-npm create vue@latest .
-
-# 3. 依存関係のインストール
-npm install
-
-# 4. 開発サーバーの起動
-npm run dev
-
-```
-
-### 2. バックエンド (`server/`)
-
-Honoのプロジェクトを作成後、OpenAPIの自動生成に必要なパッケージを追加でインストールして起動します。
+### 1. バックエンド（Docker）
 
 ```bash
-# 1. serverディレクトリへ移動
 cd server
 
-# 2. プロジェクトの作成（現在のディレクトリに展開）
-npm create hono@latest .
-
-# 3. OpenAPIおよびバリデーション用のパッケージを追加
-npm install @hono/zod-openapi @hono/swagger-ui zod
-
-# 4. 依存関係のインストール
-npm install
-
-# 5. 開発サーバーの起動
-npm run dev
-
-```
-
-### 3. バックエンド Docker 起動 (`server/`)
-
-既存の Docker コンテナとポートが競合しないよう、ホスト側ポートを `.env` で指定して起動します。
-
-#### ポート競合の確認
-
-```bash
-# 稼働中 Docker コンテナのポート一覧
-docker ps --format 'table {{.Names}}\t{{.Ports}}'
-
-# ホスト全体の LISTEN ポート確認
-ss -tlnp | grep LISTEN
-```
-
-#### 起動手順
-
-```bash
-# 1. serverディレクトリへ移動
-cd server
-
-# 2. 環境変数ファイルの作成
+# 初回のみ: 環境変数ファイルの作成
 cp .env.example .env
-# HOST_PORT=13000 を必要に応じて変更（競合時は 13001 など別番号に）
 
-# 3. イメージのビルドと起動
+# イメージのビルドと起動
 docker compose build
 docker compose up -d
 
-# 4. 動作確認
+# 動作確認
 curl http://localhost:13000/health
 ```
 
-#### アクセス URL
+コード変更後に反映する場合:
+
+```bash
+docker compose build && docker compose up -d
+```
+
+### 2. フロントエンド
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+ブラウザで `http://localhost:5173` を開く。
+
+---
+
+## アクセス URL
+
+### フロントエンド
 
 | 用途 | URL |
 |------|-----|
-| Health Check | `http://localhost:${HOST_PORT}/health` |
-| Swagger UI | `http://localhost:${HOST_PORT}/ui` |
-| OpenAPI Spec | `http://localhost:${HOST_PORT}/doc` |
+| 開発サーバー | `http://localhost:5173` |
+| Home | `http://localhost:5173/` |
 
-#### ポート競合時の対処
+### バックエンド API
+
+デフォルトのホストポートは `13000`（`.env` の `HOST_PORT` で変更可）。
+
+| 用途 | URL |
+|------|-----|
+| Health Check | `http://localhost:13000/health` |
+| Swagger UI | `http://localhost:13000/ui` |
+| OpenAPI Spec | `http://localhost:13000/doc` |
+| TODO 一覧 | `GET http://localhost:13000/todos` |
+| ユーザー一覧 | `GET http://localhost:13000/users` |
+
+フロントエンドから API を呼ぶ際のベース URL:
+
+```
+http://localhost:13000
+```
+
+---
+
+## ポート競合の確認と対処
+
+### 使用中ポートの確認
+
+```bash
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+ss -tlnp | grep LISTEN
+```
+
+### 競合時の対処
 
 `Bind for 0.0.0.0:13000 failed: port is already allocated` が出た場合:
 
-1. `.env` の `HOST_PORT` を別番号に変更（例: `13001`）
+1. `server/.env` の `HOST_PORT` を別番号に変更（例: `13001`）
 2. `docker compose down && docker compose up -d`
 3. `curl http://localhost:13001/health` で再確認
 
 コンテナ内の `PORT=3000` は変更不要。ホスト側マッピングだけ変更すればよい。
 
-#### Vue クライアントとの接続
+### ポート整理（参考）
 
-- Vue dev server: `http://localhost:5173`
-- API ベース URL: `http://localhost:13000`（`HOST_PORT` に合わせる）
+| サービス | ホストポート |
+|----------|-------------|
+| Vue dev server | `5173` |
+| Hono API（Docker） | `13000`（デフォルト） |
+| Hono（コンテナ内部） | `3000` |
 
+ホストの `3000` は他プロジェクト（例: Next.js）と競合しうるが、Docker 経由（`13000`）なら問題ない。
+
+---
+
+## 補足: ローカルで Bun 起動する場合（任意）
+
+通常は Docker 利用を推奨。コンテナを使わず直接起動する場合:
+
+```bash
+cd server
+bun install
+bun run dev
+```
+
+この場合はホストの `3000` で listen するため、他サービスとのポート競合に注意。
