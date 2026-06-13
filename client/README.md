@@ -1,6 +1,7 @@
 # Vue 3 + TypeScript + Vite
 
 ## ディレクトリ構成
+
 ```.ini
 src/
 ├── assets/          # 静的ファイル（画像、共通CSSなど）
