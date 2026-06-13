@@ -1,0 +1,11 @@
+services:
+  api:
+    build: .
+    container_name: vite-vue-api
+    ports:
+      - "${HOST_PORT:-13000}:${PORT:-3000}"
+    environment:
+      PORT: "3000"
+      NODE_ENV: development
+    env_file:
+      - .env

@@ -77,3 +77,59 @@ npm install
 npm run dev
 
 ```
+
+### 3. バックエンド Docker 起動 (`server/`)
+
+既存の Docker コンテナとポートが競合しないよう、ホスト側ポートを `.env` で指定して起動します。
+
+#### ポート競合の確認
+
+```bash
+# 稼働中 Docker コンテナのポート一覧
+docker ps --format 'table {{.Names}}\t{{.Ports}}'
+
+# ホスト全体の LISTEN ポート確認
+ss -tlnp | grep LISTEN
+```
+
+#### 起動手順
+
+```bash
+# 1. serverディレクトリへ移動
+cd server
+
+# 2. 環境変数ファイルの作成
+cp .env.example .env
+# HOST_PORT=13000 を必要に応じて変更（競合時は 13001 など別番号に）
+
+# 3. イメージのビルドと起動
+docker compose build
+docker compose up -d
+
+# 4. 動作確認
+curl http://localhost:13000/health
+```
+
+#### アクセス URL
+
+| 用途 | URL |
+|------|-----|
+| Health Check | `http://localhost:${HOST_PORT}/health` |
+| Swagger UI | `http://localhost:${HOST_PORT}/ui` |
+| OpenAPI Spec | `http://localhost:${HOST_PORT}/doc` |
+
+#### ポート競合時の対処
+
+`Bind for 0.0.0.0:13000 failed: port is already allocated` が出た場合:
+
+1. `.env` の `HOST_PORT` を別番号に変更（例: `13001`）
+2. `docker compose down && docker compose up -d`
+3. `curl http://localhost:13001/health` で再確認
+
+コンテナ内の `PORT=3000` は変更不要。ホスト側マッピングだけ変更すればよい。
+
+#### Vue クライアントとの接続
+
+- Vue dev server: `http://localhost:5173`
+- API ベース URL: `http://localhost:13000`（`HOST_PORT` に合わせる）
+
