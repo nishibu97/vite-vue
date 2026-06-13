@@ -1,27 +1,30 @@
-import { Hono } from "hono";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { listUsersRoute } from "../features/users/user.schema";
 import { userUseCase } from "../usecases/user.usecase";
 
-const app = new Hono();
+const app = new OpenAPIHono();
 
 // GET /users
-app.get("/", async (c) => {
-  try {
-    const users = await userUseCase.getUsers();
+app.openapi(listUsersRoute, async (c) => {
+  const users = await userUseCase.getUsers();
 
-    // パスワードを ********** にマスク
-    const safeUsers = users.map((user) => ({
-      ...user,
-      password: "**********",
-    }));
+  const safeUsers = users.map((user) => ({
+    id: user.id,
+    name: user.name,
+    kana: user.kana,
+    email: user.email,
+    password: "**********",
+    createdAt: user.createdAt.toISOString(),
+  }));
 
-    return c.json({
+  return c.json(
+    {
       success: true,
-      count: users.length,
+      count: safeUsers.length,
       users: safeUsers,
-    });
-  } catch (e) {
-    return c.json({ success: false, message: "Internal Server Error" }, 500);
-  }
+    },
+    200,
+  );
 });
 
 export default app;
